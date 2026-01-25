@@ -15,6 +15,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+      profilePhoto: {
+      type: String,
+      default: null
+    },
     bio: String,
     profilePicture: String
   },
