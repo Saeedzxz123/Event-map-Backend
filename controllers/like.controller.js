@@ -1,10 +1,9 @@
 const express = require('express')
 const Like = require('../models/Like')
-const Event = require('../models/Event')
+const Event = require('../models/Evemt')
 const protect = require('../middlewares/auth.middleware')
 
 const router = express.Router()
-
 
 
 router.post('/:eventId', protect, async (req, res) => {

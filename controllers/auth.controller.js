@@ -2,7 +2,6 @@ const express = require('express')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const User = require('../models/User')
-const adminConfig = require('../config/admin')
 const upload = require('../middlewares/upload.middleware')
 const cloudinary = require('../config/cloudinary')
 require('dotenv').config()
@@ -88,10 +87,8 @@ router.post('/login', async (req, res) => {
     const { username, password } = req.body
 
 
-    if (
-      username === adminConfig.ADMIN_USERNAME &&
-      password === adminConfig.ADMIN_PASSWORD
-    ) {
+    if (req.user?.isAdmin)
+     {
       const adminToken = jwt.sign(
         { isAdmin: true },
         process.env.JWT_SECRET,
@@ -99,7 +96,7 @@ router.post('/login', async (req, res) => {
       )
 
       return res.json({
-        username: adminConfig.ADMIN_USERNAME,
+        username: user.username,
         isAdmin: true,
         token: adminToken
       })
@@ -142,7 +139,7 @@ router.get('/me', async (req, res) => {
 
     if (decoded.isAdmin) {
       return res.json({
-        username: adminConfig.ADMIN_USERNAME,
+        username: user.username,
         isAdmin: true
       })
     }

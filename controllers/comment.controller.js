@@ -1,6 +1,6 @@
 const express = require('express')
-const Comment = require('../models/Comment')
-const Event = require('../models/Event')
+const Comment = require('../models/Comments')
+const Event = require('../models/Evemt')
 const protect = require('../middlewares/auth.middleware')
 
 const router = express.Router()

@@ -1,5 +1,5 @@
 const express = require('express')
-const Event = require('../models/Event')
+const Event = require('../models/Evemt')
 const protect = require('../middlewares/auth.middleware')
 const upload = require('../middlewares/upload.middleware')
 const cloudinary = require('../config/cloudinary')
