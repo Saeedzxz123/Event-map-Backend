@@ -16,7 +16,6 @@ const eventSchema = new mongoose.Schema(
     },
     registrationLink: String,
     picture: String,
-
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

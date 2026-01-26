@@ -15,11 +15,11 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-      profilePhoto: {
+    profilePhoto: {
       type: String,
       default: null
     },
-    bio: String,
+    bio: String
   },
   { timestamps: true }
 )

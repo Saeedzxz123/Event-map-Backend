@@ -1,17 +1,17 @@
 const express = require('express')
-const Event = require('../models/Evemt')
+const Event = require('../models/Event')
+const Comment = require('../models/Comments')
+const Like = require('../models/Like')
 const protect = require('../middlewares/auth.middleware')
 const upload = require('../middlewares/upload.middleware')
 const cloudinary = require('../config/cloudinary')
 
 const router = express.Router()
 
-
 router.get('/', async (req, res) => {
   const events = await Event.find().populate('userId', 'username')
   res.json(events)
 })
-
 
 router.get('/:id', async (req, res) => {
   const event = await Event.findById(req.params.id).populate('userId', 'username')
@@ -23,7 +23,6 @@ router.post('/', protect, upload.single('picture'), async (req, res) => {
   let pictureUrl = null
 
   if (req.file) {
-
     const result = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         { folder: 'events' },
@@ -46,6 +45,21 @@ router.post('/', protect, upload.single('picture'), async (req, res) => {
   res.status(201).json(event)
 })
 
+
+router.put('/:id', protect, async (req, res) => {
+  const event = await Event.findById(req.params.id)
+  if (!event) return res.status(404).json({ message: 'Event not found' })
+
+  if (!req.user.isAdmin && !event.userId.equals(req.user._id)) {
+    return res.status(403).json({ message: 'Not allowed' })
+  }
+
+  Object.assign(event, req.body)
+  await event.save()
+
+  res.json(event)
+})
+
 router.delete('/:id', protect, async (req, res) => {
   const event = await Event.findById(req.params.id)
   if (!event) return res.status(404).json({ message: 'Event not found' })
@@ -54,7 +68,10 @@ router.delete('/:id', protect, async (req, res) => {
     return res.status(403).json({ message: 'Not allowed' })
   }
 
+  await Comment.deleteMany({ eventId: event._id })
+  await Like.deleteMany({ eventId: event._id })
   await event.deleteOne()
+
   res.json({ message: 'Event deleted' })
 })
 
