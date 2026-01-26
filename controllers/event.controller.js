@@ -9,9 +9,33 @@ const cloudinary = require('../config/cloudinary')
 const router = express.Router()
 
 router.get('/', async (req, res) => {
-  const events = await Event.find().populate('userId', 'username')
-  res.json(events)
+  const { search, country, page = 1 } = req.query
+  const limit = 30
+
+  const query = {}
+
+  if (search) {
+    query.eventName = { $regex: search, $options: 'i' }
+  }
+
+  if (country) {
+    query.country = country
+  }
+
+  const events = await Event.find(query)
+    .populate('userId', 'username')
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .sort({ createdAt: -1 })
+
+  const total = await Event.countDocuments(query)
+
+  res.json({
+    events,
+    totalPages: Math.ceil(total / limit)
+  })
 })
+
 
 router.get('/:id', async (req, res) => {
   const event = await Event.findById(req.params.id).populate('userId', 'username')
@@ -36,11 +60,15 @@ router.post('/', protect, upload.single('picture'), async (req, res) => {
     pictureUrl = result.secure_url
   }
 
-  const event = await Event.create({
-    ...req.body,
-    userId: req.user._id,
-    picture: pictureUrl
-  })
+const event = await Event.create({
+  eventName: req.body.eventName,
+  eventInformation: req.body.eventInformation,
+  isPaid: req.body.isPaid,
+  registrationLink: req.body.registrationLink,
+  country: req.body.country, 
+  userId: req.user._id,
+  picture: pictureUrl
+})
 
   res.status(201).json(event)
 })

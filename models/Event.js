@@ -14,6 +14,12 @@ const eventSchema = new mongoose.Schema(
       type: Boolean,
       required: true
     },
+
+    country: {
+      type: String,
+      required: true
+    },
+
     registrationLink: String,
     picture: String,
     userId: {
@@ -24,5 +30,7 @@ const eventSchema = new mongoose.Schema(
   },
   { timestamps: true }
 )
+
+
 
 module.exports = mongoose.model('Event', eventSchema)

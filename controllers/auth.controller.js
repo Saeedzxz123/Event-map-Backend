@@ -6,7 +6,7 @@ const upload = require('../middlewares/upload.middleware')
 const cloudinary = require('../config/cloudinary')
 const protect = require('../middlewares/auth.middleware')
 const sendEmail = require('../utils/sendEmail')
-const generateOtp = require('../utils/generateOtp')
+const generateOtp = require('../utils/generateOpt')
 const sendOtpEmail = require('../utils/sendOtpEmail')
 
 const router = express.Router()
