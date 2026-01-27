@@ -121,7 +121,7 @@ router.get('/me', protect, async (req, res) => {
   res.json(req.user)
 })
 
-// ===================== SEND OTP =====================
+
 router.post('/send-otp', async (req, res) => {
   try {
     const { email } = req.body
@@ -146,36 +146,50 @@ router.post('/send-otp', async (req, res) => {
   }
 })
 
-// ===================== VERIFY OTP =====================
+
 router.post('/verify-otp', async (req, res) => {
   try {
     const { email, otp } = req.body
-    if (!email || !otp) return res.status(400).json({
-      message: 'Email and OTP are required' })
+    if (!email || !otp)
+      return res.status(400).json({ message: 'Email and OTP are required' })
 
     const user = await User.findOne({ email })
-    if (!user || !user.otp) return res.status(400).json({
-      message: 'Invalid OTP' })
-
-    if (user.otpExpires < Date.now()) return res.status(400).json({
-      message: 'OTP expired' })
+    if (!user || !user.otp) return res.status(400).json({ message: 'Invalid OTP' })
+    if (user.otpExpires < Date.now()) return res.status(400).json({ message: 'OTP expired' })
 
     const isValid = await bcrypt.compare(otp, user.otp)
-    if (!isValid) return res.status(400).json({ 
-      message: 'Invalid OTP' })
+    if (!isValid) return res.status(400).json({ message: 'Invalid OTP' })
 
 
-    user.isVerified = true
-    user.otp = undefined
+      user.otp = undefined
     user.otpExpires = undefined
+    user.isVerified = true
     await user.save()
 
-    res.json({ message: 'OTP verified successfully! You can now log in.' })
-  } 
-  catch (error) {
-    console.error(error)
+
+    const token = jwt.sign(
+      { id: user._id, isAdmin: user.isAdmin },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    )
+
+
+    res.json({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      profilePhoto: user.profilePhoto,
+      isAdmin: user.isAdmin,
+      isVerified: user.isVerified,
+      token
+    })
+  } catch (error) {
+    console.error('Verify OTP Error:', error)
     res.status(500).json({ message: 'OTP verification failed' })
   }
 })
+
+
+
 
 module.exports = router
