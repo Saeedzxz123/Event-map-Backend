@@ -20,13 +20,16 @@ const userSchema = new mongoose.Schema(
       default: null
     },
     email: {
-  type: String,
-  required: true,
-  unique: true
-},
+      type: String,
+      required: true,
+      unique: true
+    },
+    isVerified: {           
+      type: Boolean,
+      default: false
+    },
     otp: String,
     otpExpires: Date,
-    
     bio: String
   },
   { timestamps: true }

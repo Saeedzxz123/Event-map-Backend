@@ -22,3 +22,4 @@ const protectOptional = async (req, res, next) => {
 }
 
 module.exports = protectOptional
+
