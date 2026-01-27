@@ -2,6 +2,8 @@ const express = require('express')
 const Like = require('../models/Like')
 const Event = require('../models/Event')
 const protect = require('../middlewares/auth.middleware')
+const protectOptional = require('../middlewares/protectOptional')
+
 
 const router = express.Router()
 
@@ -33,9 +35,19 @@ router.post('/:eventId', protect, async (req, res) => {
 })
 
 
-router.get('/:eventId', async (req, res) => {
+router.get('/:eventId', protectOptional, async (req, res) => {
   const count = await Like.countDocuments({ eventId: req.params.eventId })
-  res.json({ count })
+
+  let liked = false
+  if (req.user) {
+    liked = !!(await Like.findOne({
+      userId: req.user._id,
+      eventId: req.params.eventId
+    }))
+  }
+
+  res.json({ count, liked })
 })
+
 
 module.exports = router
